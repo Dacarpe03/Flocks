@@ -1,20 +1,36 @@
 import numpy as np
 
+
 class Bird:
 
-    def __init__(self, id, position, vector):
-        self.position = position
-        self.vector = vector
-        self.id = id
+    MAX_SPEED = 5
+    RADIUS = 6
+
+    def __init__(self, currentPosition, desiredPosition, vector):
+        self.currentPosition = np.array(currentPosition).astype(float)
+        self.desiredPosition = np.array(desiredPosition).astype(float)
+        self.vector = np.array(vector).astype(float)
+        self.acceleration = np.array([0, 0]).astype(float)
 
     def move(self):
-        self.position[0] += self.vector[0]
-        self.position[1] += self.vector[1]
+        self.currentPosition += self.vector
+        self.updateVect()
+        self.updateAcceleration()
 
-    def goTo(self, x, y):
-        print("Cambio destino")
-        vx = x - self.position[0]
-        vy = y - self.position[1]
-        newVector = [vx, vy]
-        norm = np.linalg.norm(newVector)
-        self.vector = newVector/norm
+    def updateVect(self):
+        self.vector += self.acceleration
+
+    def updateAcceleration(self):
+        self.acceleration
+
+    def avoid(self, otherBirds):
+        sumVector = [0, 0]
+        for bird in otherBirds:
+            sumVector += bird.getVector()
+        avgVector = sumVector/len(otherBirds)
+
+    def setDesiredPositon(self, x, y):
+        self.desiredPosition = [x, y]
+
+    def getVector(self):
+        return self.vector

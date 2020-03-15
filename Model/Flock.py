@@ -13,7 +13,7 @@ class Flock:
         for i in range(0, self.numberOfBirds):
             position = [random.randint(0, maxX-1), random.randint(0,maxY-1)]
             vector = [0.5, 0.5]
-            bird = Bird(id, position, vector)
+            bird = Bird(position, [0, 0], vector)
             self.birds.append(bird)
 
     def move(self):
@@ -22,4 +22,4 @@ class Flock:
 
     def redirect(self, x, y):
         for bird in self.birds:
-            bird.goTo(x, y)
+            bird.setDesiredPositon(x, y)

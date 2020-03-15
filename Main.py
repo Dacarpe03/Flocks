@@ -4,7 +4,7 @@ from Model.Flock import Flock
 SCREEN_WIDTH = 2000
 SCREEN_HEIGHT = 1000
 
-N_BIRDS = 20
+N_BIRDS = 1
 RADIUS_BIRD = 5
 
 class MyGame(arcade.Window):
@@ -19,9 +19,7 @@ class MyGame(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-        print(f"You clicked button number: {button}")
         if button == arcade.MOUSE_BUTTON_LEFT:
-            print(self.flock.birds)
             self.flock.redirect(x, y)
 
     #INIT
@@ -39,8 +37,8 @@ class MyGame(arcade.Window):
             self.drawBird(bird)
 
     def drawBird(self, bird):
-        x = bird.position[0]
-        y = bird.position[1]
+        x = bird.currentPosition[0]
+        y = bird.currentPosition[1]
         arcade.draw_circle_filled(x, y, RADIUS_BIRD, arcade.color.YELLOW)
 
     #STEP
@@ -49,8 +47,9 @@ class MyGame(arcade.Window):
         self.flock.move()
 
 def main():
-    flock = Flock(10, 100, 100)
-    flock.redirect(50,50)
+    v1 = [10,5]
+    v2 = [20,3]
+    print(v1+v2)
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
     arcade.run()

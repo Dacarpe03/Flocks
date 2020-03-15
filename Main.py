@@ -1,28 +1,31 @@
 import arcade
-from Model.Bird import Bird
+from Model.Flock import Flock
 
 SCREEN_WIDTH = 2000
 SCREEN_HEIGHT = 1000
 
+N_BIRDS = 20
 
 class MyGame(arcade.Window):
     """ Main application class. """
 
     def __init__(self, width, height):
         super().__init__(width, height)
-        self.bird = Bird([0, 0], [0.5, 0.5])
+        self.flock = Flock(N_BIRDS, SCREEN_WIDTH, SCREEN_HEIGHT)
         self.radiusBird = 5
         arcade.set_background_color(arcade.color.AMAZON)
 
     def setup(self):
         # Set up your game here
+
         pass
 
     def on_draw(self):
         """ Render the screen. """
         arcade.start_render()
         # Your drawing code goes here
-        self.drawBird(self.bird)
+        for bird in self.flock:
+            self.drawBird(bird)
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. """

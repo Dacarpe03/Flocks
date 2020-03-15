@@ -24,12 +24,13 @@ class MyGame(arcade.Window):
         """ Render the screen. """
         arcade.start_render()
         # Your drawing code goes here
-        for bird in self.flock:
+        for bird in self.flock.birds:
             self.drawBird(bird)
 
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. """
-        self.bird.move()
+        for bird in self.flock.birds:
+            bird.move()
         pass
 
     def drawBird(self, bird):

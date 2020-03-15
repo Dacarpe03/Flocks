@@ -13,4 +13,4 @@ class Flock:
         for i in range(0, self.numberOfBirds):
             position = [random.randint(0, maxX-1), random.randint(0,maxY-1)]
             vector = [0.5, 0.5]
-            self.birds.appen(Bird(id, position, vector))
+            self.birds.append(Bird(id, position, vector))

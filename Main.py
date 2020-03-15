@@ -1,4 +1,5 @@
 import arcade
+from Model.Bird import Bird
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -30,6 +31,8 @@ def main():
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
     arcade.run()
+    bird = Bird([0, 0], [10, 10])
+
 
 
 if __name__ == "__main__":

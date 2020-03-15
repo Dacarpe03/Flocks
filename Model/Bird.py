@@ -13,9 +13,8 @@ class Bird:
 
     def goTo(self, x, y):
         print("Cambio destino")
-        vx = x-self.position[0]
-        vy = y-self.positon[0]
+        vx = x - self.position[0]
+        vy = y - self.position[1]
         newVector = [vx, vy]
         norm = np.linalg.norm(newVector)
         self.vector = newVector/norm
-        print(self.vector)

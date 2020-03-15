@@ -21,7 +21,5 @@ class Flock:
             bird.move()
 
     def redirect(self, x, y):
-        print("redirect")
         for bird in self.birds:
-            print("Cambio destino")
             bird.goTo(x, y)

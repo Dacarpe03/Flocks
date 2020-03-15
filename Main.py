@@ -21,7 +21,6 @@ class MyGame(arcade.Window):
         """
         print(f"You clicked button number: {button}")
         if button == arcade.MOUSE_BUTTON_LEFT:
-            print("Aqui")
             print(self.flock.birds)
             self.flock.redirect(x, y)
 
@@ -50,6 +49,8 @@ class MyGame(arcade.Window):
         self.flock.move()
 
 def main():
+    flock = Flock(10, 100, 100)
+    flock.redirect(50,50)
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
     arcade.run()

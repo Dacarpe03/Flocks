@@ -1,11 +1,11 @@
 import arcade
 from Model.Flock import Flock
 
-SCREEN_WIDTH = 2000
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 500
 
-N_BIRDS = 1
-RADIUS_BIRD = 5
+N_BIRDS = 80
+BIRD_SIZE = 5
 
 class MyGame(arcade.Window):
     """ Main application class. """
@@ -39,7 +39,7 @@ class MyGame(arcade.Window):
     def drawBird(self, bird):
         x = bird.currentPosition[0]
         y = bird.currentPosition[1]
-        arcade.draw_circle_filled(x, y, RADIUS_BIRD, arcade.color.YELLOW)
+        arcade.draw_circle_filled(x, y, BIRD_SIZE, arcade.color.YELLOW)
 
     #STEP
     def update(self, delta_time):

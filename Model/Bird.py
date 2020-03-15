@@ -3,11 +3,12 @@ import random
 
 class Bird:
 
-    MAX_SPEED = 4
+    MAX_SPEED = 3
     MAX_FORCE = 0.1
-    RADIUS = 50
+    RADIUS = 35
 
-    def __init__(self, currentPosition, desiredPosition, vector):
+    def __init__(self, id, currentPosition, desiredPosition, vector):
+        self.id = id
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
         self.steer = np.array([0, 0]).astype(float)
@@ -16,8 +17,8 @@ class Bird:
 
     def move(self, otherBirds):
         self.resetAcceleration()
-        self.avoid(otherBirds)
-        self.updateSteer()
+        self.align(otherBirds)
+        #self.updateSteer()
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
 
@@ -40,15 +41,21 @@ class Bird:
     def applyForce(self, v):
         self.acceleration = np.add(self.acceleration, v)
 
-    def avoid(self, otherBirds):
+    def align(self, otherBirds):
         sumVector = np.array([0, 0]).astype(float)
+        closeBirds = 0
         for bird in otherBirds:
             d = self.dist(bird)
-            if self.RADIUS >= d > 0:
+            if self.RADIUS >= d > 0 and self.id != bird.id:
+                closeBirds += 1
                 sumVector = np.add(sumVector, bird.getVector())
-        avg = np.divide(sumVector, len(otherBirds))
-        avg = self.speedLimit(avg, self.MAX_SPEED)
-        self.applyForce(avg)
+
+        if closeBirds > 0:
+            avg = np.divide(sumVector, closeBirds)
+            avg = self.speedLimit(avg, self.MAX_SPEED)
+            self.steer = np.subtract(avg, self.vector)
+            self.steer = self.speedLimit(self.steer, self.MAX_FORCE)
+            self.applyForce(self.steer)
 
     def speedLimit(self, v, limit):
         norm = np.linalg.norm(v)

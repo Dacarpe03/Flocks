@@ -16,7 +16,7 @@ class Flock:
         for i in range(0, self.numberOfBirds):
             position = [random.randint(0, maxX-1), random.randint(0, maxY-1)]
             vector = [random.uniform(-self.SPEED, self.SPEED), random.uniform(-self.SPEED, self.SPEED)]
-            bird = Bird(position, [0, 0], vector)
+            bird = Bird(i, position, [maxX/2, maxY/2], vector)
             self.birds.append(bird)
 
     def move(self):

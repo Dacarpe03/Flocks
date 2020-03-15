@@ -45,11 +45,8 @@ class MyGame(arcade.Window):
     def update(self, delta_time):
         """ All the logic to move, and the game logic goes here. """
         self.flock.move()
-
+        pass
 def main():
-    v1 = [10,5]
-    v2 = [20,3]
-    print(v1+v2)
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
     arcade.run()

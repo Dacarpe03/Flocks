@@ -5,6 +5,7 @@ SCREEN_WIDTH = 2000
 SCREEN_HEIGHT = 1000
 
 N_BIRDS = 20
+RADIUS_BIRD = 5
 
 class MyGame(arcade.Window):
     """ Main application class. """
@@ -12,7 +13,6 @@ class MyGame(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height)
         self.flock = Flock(N_BIRDS, SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.radiusBird = 5
         arcade.set_background_color(arcade.color.AMAZON)
 
     def setup(self):
@@ -36,7 +36,7 @@ class MyGame(arcade.Window):
     def drawBird(self, bird):
         x = bird.position[0]
         y = bird.position[1]
-        arcade.draw_circle_filled(x, y, self.radiusBird, arcade.color.YELLOW)
+        arcade.draw_circle_filled(x, y, RADIUS_BIRD, arcade.color.YELLOW)
 
 def main():
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)

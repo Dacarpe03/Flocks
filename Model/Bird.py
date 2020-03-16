@@ -15,8 +15,10 @@ class Bird:
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector):
         self.identifier = identifier
+
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
+
         self.followVector = np.array([0, 0]).astype(float)
         self.vector = np.array(vector).astype(float)
         self.acceleration = np.array([0, 0]).astype(float)
@@ -26,7 +28,6 @@ class Bird:
         self.resetAcceleration()
         neighbours = self.getNeighbourBirds(otherBirds)
         self.follow(neighbours)
-        # self.updateSteer()
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
     #end move
@@ -35,16 +36,6 @@ class Bird:
         self.vector = np.add(self.vector, self.acceleration)
         self.vector = speedLimit(self.vector, self.MAX_SPEED)
     #end updateVect
-
-    def updateSteer(self):
-        desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
-        desiredVector = speedLimit(desiredVector, self.MAX_SPEED)
-
-        self.followVector = np.subtract(desiredVector, self.vector)
-        self.followVector = speedLimit(self.followVector, self.W_FOLLOW)
-
-        self.applyForce(self.followVector)
-    #end updateSteer
 
     def resetAcceleration(self):
         self.acceleration = np.zeros(2)

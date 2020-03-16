@@ -9,12 +9,19 @@ def speedLimit(v, limit):
 
 
 class Bird:
+    BORDER_EDGES = 25 #Border of edges in which we are in danger
+
     MAX_SPEED = 4   #Max magnitude of a vector
     W_FOLLOW = 0.3  # Weight of follow
+
+    STEER_FORCE = 0.1 #Steering force when close to an edge
     RADIUS = 35     # Perception radius
 
-    def __init__(self, identifier, currentPosition, desiredPosition, vector):
+    def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
         self.identifier = identifier
+
+        self.edgeX = edgeX
+        self.edgeY = edgeY
 
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
@@ -26,13 +33,17 @@ class Bird:
 
     def move(self, otherBirds):
         self.resetAcceleration()
+        #See which birds are close to us
         neighbours = self.getNeighbourBirds(otherBirds)
+        #First calculate follow vector
         self.follow(neighbours)
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
     #end move
 
     def updateVect(self):
+        # We dont want to touch the edges
+        self.awayFromBorders()
         self.vector = np.add(self.vector, self.acceleration)
         self.vector = speedLimit(self.vector, self.MAX_SPEED)
     #end updateVect
@@ -44,6 +55,23 @@ class Bird:
     def applyForce(self, v):
         self.acceleration = np.add(self.acceleration, v)
     #end applyForce
+
+    def awayFromBorders(self):
+        if self.BORDER_EDGES > self.currentPosition[0] or self.currentPosition[0] > self.edgeX-self.currentPosition[0]:
+            print("Cerca de X")
+            v = np.array([-self.vector[0] * self.MAX_SPEED, 0])
+            force = self.calculateForce(v, self.STEER_FORCE)
+            self.applyForce(force)
+        elif self.BORDER_EDGES > self.currentPosition[1] or self.currentPosition[1] > self.edgeY-self.BORDER_EDGES:
+            print("Cerca de Y")
+            v = np.array([0, -self.vector[1] * self.MAX_SPEED])
+            force = self.calculateForce(v, self.STEER_FORCE)
+            self.applyForce(force)
+    #end awayFromBorders
+
+    def calculateForce(self, v, magnitude):
+        return np.subtract(v, self.vector)
+    #end calculateForce
 
     def follow(self, neighbours):
         sumVector = np.array([0, 0]).astype(float)
@@ -58,6 +86,10 @@ class Bird:
             self.followVector = speedLimit(self.followVector, self.W_FOLLOW)
             self.applyForce(self.followVector)
     #end follow
+
+    #def avoid(self, neighbours):
+     #   for bird in neighbours:
+    #end avoid
 
     def setDesiredPosition(self, x, y):
         self.desiredPosition = np.array([x, y]).astype(float)

@@ -3,22 +3,22 @@ import random
 
 class Bird:
 
-    MAX_SPEED = 3
-    MAX_FORCE = 0.1
+    MAX_SPEED = 4
+    W_FOLLOW = 0.3 #Weight of follow
     RADIUS = 35
 
     def __init__(self, id, currentPosition, desiredPosition, vector):
         self.id = id
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
-        self.steer = np.array([0, 0]).astype(float)
+        self.follow = np.array([0, 0]).astype(float)
         self.vector = np.array(vector).astype(float)
         self.acceleration = np.array([0, 0]).astype(float)
 
     def move(self, otherBirds):
         self.resetAcceleration()
-        self.align(otherBirds)
-        self.updateSteer()
+        self.follow(otherBirds)
+        #self.updateSteer()
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
 
@@ -30,10 +30,10 @@ class Bird:
         desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
         desiredVector = self.speedLimit(desiredVector, self.MAX_SPEED)
 
-        self.steer = np.subtract(desiredVector, self.vector)
-        self.steer = self.speedLimit(self.steer, self.MAX_FORCE)
+        self.follow = np.subtract(desiredVector, self.vector)
+        self.follow = self.speedLimit(self.follow, self.W_FOLLOW)
 
-        self.applyForce(self.steer)
+        self.applyForce(self.follow)
 
     def resetAcceleration(self):
         self.acceleration = np.zeros(2)
@@ -41,7 +41,7 @@ class Bird:
     def applyForce(self, v):
         self.acceleration = np.add(self.acceleration, v)
 
-    def align(self, otherBirds):
+    def follow(self, otherBirds):
         sumVector = np.array([0, 0]).astype(float)
         closeBirds = 0
         for bird in otherBirds:
@@ -53,9 +53,9 @@ class Bird:
         if closeBirds > 0:
             avg = np.divide(sumVector, closeBirds)
             avg = self.speedLimit(avg, self.MAX_SPEED)
-            self.steer = np.subtract(avg, self.vector)
-            self.steer = self.speedLimit(self.steer, self.MAX_FORCE)
-            self.applyForce(self.steer)
+            self.follow = np.subtract(avg, self.vector)
+            self.follow = self.speedLimit(self.follow, self.W_FOLLOW)
+            self.applyForce(self.follow)
 
     def speedLimit(self, v, limit):
         norm = np.linalg.norm(v)

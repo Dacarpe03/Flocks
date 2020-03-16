@@ -12,12 +12,14 @@ class Bird:
     BORDER_EDGES = 25 #Border of edges in which we are in danger
 
     MAX_SPEED = 4   #Max magnitude of a vector
-    W_FOLLOW = 0.2  #Weight of follow
-    W_AVOID = 0.1   #Weight of avoid
 
-    STEER_FORCE = 0.2   #Steering force when close to an edge
+    W_FOLLOW = 0.1  #Weight of follow
+    W_AVOID = 1   #Weight of avoid
+    W_DESIRED = 0.2 #Weigth of going to desired position
+
+    STEER_FORCE = 0.1   #Steering force when close to an edge
     RADIUS_FOLLOW = 50  #Perception radius
-    RADIUS_AVOID = 15   #Avoid radius
+    RADIUS_AVOID = 20   #Avoid radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
         self.identifier = identifier
@@ -37,6 +39,7 @@ class Bird:
         #See which birds are close to us
         neighbours = self.getNeighbourBirds(otherBirds, self.RADIUS_FOLLOW)
         #First calculate follow vector
+        self.goToDesiredPositon()
         self.follow(neighbours)
         self.avoid(neighbours)
         self.updateVect()
@@ -46,7 +49,7 @@ class Bird:
     def updateVect(self):
         # We don't want to touch the edges so we add a force to go away from it
         self.awayFromBorders()
-        #self.acceleration = speedLimit(self.acceleration, self.MAX_SPEED)
+        self.acceleration = speedLimit(self.acceleration, self.MAX_SPEED)
         self.vector = np.add(self.vector, self.acceleration)
         self.vector = speedLimit(self.vector, self.MAX_SPEED)
     #end updateVect
@@ -73,6 +76,13 @@ class Bird:
     def calculateForce(self, v, magnitude):
         return np.subtract(v, self.vector)
     #end calculateForce
+
+    def goToDesiredPositon(self):
+        desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
+        desiredVector = speedLimit(desiredVector, self.MAX_SPEED)
+        force = self.calculateForce(desiredVector, self.W_DESIRED)
+        self.applyForce(force)
+    #end goToDesiredPosition
 
     def follow(self, neighbours):
         sumVector = np.array([0, 0]).astype(float)

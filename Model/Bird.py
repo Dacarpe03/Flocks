@@ -12,9 +12,9 @@ class Bird:
     BORDER_EDGES = 25 #Border of edges in which we are in danger
 
     MAX_SPEED = 4   #Max magnitude of a vector
-    W_FOLLOW = 0.3  # Weight of follow
+    W_FOLLOW = 0.1  # Weight of follow
 
-    STEER_FORCE = 0.1 #Steering force when close to an edge
+    STEER_FORCE = 0.2 #Steering force when close to an edge
     RADIUS = 35     # Perception radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
@@ -57,14 +57,14 @@ class Bird:
     #end applyForce
 
     def awayFromBorders(self):
-        if self.BORDER_EDGES > self.currentPosition[0] or self.currentPosition[0] > self.edgeX-self.currentPosition[0]:
+        if self.BORDER_EDGES > self.currentPosition[0] or self.currentPosition[0] > self.edgeX-self.BORDER_EDGES:
             print("Cerca de X")
-            v = np.array([-self.vector[0] * self.MAX_SPEED, 0])
+            v = np.array([-self.vector[0] * self.MAX_SPEED/2, 0])
             force = self.calculateForce(v, self.STEER_FORCE)
             self.applyForce(force)
         elif self.BORDER_EDGES > self.currentPosition[1] or self.currentPosition[1] > self.edgeY-self.BORDER_EDGES:
             print("Cerca de Y")
-            v = np.array([0, -self.vector[1] * self.MAX_SPEED])
+            v = np.array([0, -self.vector[1] * self.MAX_SPEED/2])
             force = self.calculateForce(v, self.STEER_FORCE)
             self.applyForce(force)
     #end awayFromBorders

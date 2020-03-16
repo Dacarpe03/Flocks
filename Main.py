@@ -4,7 +4,7 @@ from Model.Flock import Flock
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 500
 
-N_BIRDS = 80
+N_BIRDS = 50
 BIRD_SIZE = 5
 
 class MyGame(arcade.Window):
@@ -46,6 +46,7 @@ class MyGame(arcade.Window):
         """ All the logic to move, and the game logic goes here. """
         self.flock.move()
         pass
+
 def main():
     game = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()

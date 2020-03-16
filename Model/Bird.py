@@ -18,7 +18,7 @@ class Bird:
     def move(self, otherBirds):
         self.resetAcceleration()
         self.align(otherBirds)
-        #self.updateSteer()
+        self.updateSteer()
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
 

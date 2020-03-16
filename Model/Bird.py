@@ -17,14 +17,15 @@ class Bird:
         self.identifier = identifier
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
-        self.follow = np.array([0, 0]).astype(float)
+        self.followVector = np.array([0, 0]).astype(float)
         self.vector = np.array(vector).astype(float)
         self.acceleration = np.array([0, 0]).astype(float)
     #end __init__
 
     def move(self, otherBirds):
         self.resetAcceleration()
-        self.follow(otherBirds)
+        neighbours = self.getNeighbourBirds(otherBirds)
+        self.follow(neighbours)
         # self.updateSteer()
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
@@ -39,10 +40,10 @@ class Bird:
         desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
         desiredVector = speedLimit(desiredVector, self.MAX_SPEED)
 
-        self.follow = np.subtract(desiredVector, self.vector)
-        self.follow = speedLimit(self.follow, self.W_FOLLOW)
+        self.followVector = np.subtract(desiredVector, self.vector)
+        self.followVector = speedLimit(self.followVector, self.W_FOLLOW)
 
-        self.applyForce(self.follow)
+        self.applyForce(self.followVector)
     #end updateSteer
 
     def resetAcceleration(self):
@@ -53,21 +54,18 @@ class Bird:
         self.acceleration = np.add(self.acceleration, v)
     #end applyForce
 
-    def follow(self, otherBirds):
+    def follow(self, neighbours):
         sumVector = np.array([0, 0]).astype(float)
-        closeBirds = 0
-        for bird in otherBirds:
-            d = self.dist(bird)
-            if self.RADIUS >= d > 0 and self.identifier != bird.id:
-                closeBirds += 1
-                sumVector = np.add(sumVector, bird.getVector())
+        closeBirds = len(neighbours)
+        for bird in neighbours:
+            sumVector = np.add(sumVector, bird.getVector())
 
         if closeBirds > 0:
             avg = np.divide(sumVector, closeBirds)
             avg = speedLimit(avg, self.MAX_SPEED)
-            self.follow = np.subtract(avg, self.vector)
-            self.follow = speedLimit(self.follow, self.W_FOLLOW)
-            self.applyForce(self.follow)
+            self.followVector = np.subtract(avg, self.vector)
+            self.followVector = speedLimit(self.followVector, self.W_FOLLOW)
+            self.applyForce(self.followVector)
     #end follow
 
     def setDesiredPosition(self, x, y):
@@ -87,7 +85,7 @@ class Bird:
         neighbours = []
         for bird in otherBirds:
             d = self.dist(bird)
-            if self.RADIUS >= d > 0 and self.identifier != bird.id:
+            if self.RADIUS >= d > 0 and self.identifier != bird.identifier:
                 neighbours.append(bird)
         return neighbours
     #end getNeighbourBirds

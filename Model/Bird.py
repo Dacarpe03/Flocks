@@ -17,14 +17,14 @@ def notZero(v):
 class Bird:
     BORDER_EDGES = 25  # Border of edges in which we are in danger
 
-    MAX_SPEED = 3  # Max magnitude of a vector
+    MAX_SPEED = 4  # Max magnitude of a vector
 
-    W_FOLLOW = 0.2  # Weight of follow
-    W_AVOID = 0.5  # Weight of avoid
-    W_DESIRED = 0.8  # Weigth of going to desired position
+    W_FOLLOW = 0.6  # Weight of follow
+    W_AVOID = 0.3  # Weight of avoid
+    W_DESIRED = 0.2  # Weigth of going to desired position
 
-    STEER_FORCE = 0.1  # Steering force when close to an edge
-    RADIUS_FOLLOW = 50  # Perception radius
+    STEER_FORCE = 11  # Steering force when close to an edge
+    RADIUS_FOLLOW = 60  # Perception radius
     RADIUS_AVOID = 20  # Avoid radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
@@ -46,7 +46,7 @@ class Bird:
         # See which birds are close to us
         neighbours = self.getNeighbourBirds(otherBirds, self.RADIUS_FOLLOW)
         # First calculate follow vector
-        self.goToDesiredPositon()
+        #self.goToDesiredPositon()
         self.follow(neighbours)
         self.avoid(neighbours)
         self.updateVect()

@@ -12,10 +12,10 @@ class Bird:
     BORDER_EDGES = 25 #Border of edges in which we are in danger
 
     MAX_SPEED = 4   #Max magnitude of a vector
-    W_FOLLOW = 0.1  # Weight of follow
+    W_FOLLOW = 0.5  # Weight of follow
 
     STEER_FORCE = 0.2 #Steering force when close to an edge
-    RADIUS = 35     # Perception radius
+    RADIUS = 50     # Perception radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
         self.identifier = identifier
@@ -42,8 +42,9 @@ class Bird:
     #end move
 
     def updateVect(self):
-        # We dont want to touch the edges
+        # We don't want to touch the edges so we add a force to go away from it
         self.awayFromBorders()
+        #self.acceleration = speedLimit(self.acceleration, self.MAX_SPEED)
         self.vector = np.add(self.vector, self.acceleration)
         self.vector = speedLimit(self.vector, self.MAX_SPEED)
     #end updateVect
@@ -58,13 +59,11 @@ class Bird:
 
     def awayFromBorders(self):
         if self.BORDER_EDGES > self.currentPosition[0] or self.currentPosition[0] > self.edgeX-self.BORDER_EDGES:
-            print("Cerca de X")
-            v = np.array([-self.vector[0] * self.MAX_SPEED/2, 0])
+            v = np.array([-self.vector[0] * self.MAX_SPEED, self.vector[1]])
             force = self.calculateForce(v, self.STEER_FORCE)
             self.applyForce(force)
         elif self.BORDER_EDGES > self.currentPosition[1] or self.currentPosition[1] > self.edgeY-self.BORDER_EDGES:
-            print("Cerca de Y")
-            v = np.array([0, -self.vector[1] * self.MAX_SPEED/2])
+            v = np.array([self.vector[0], -self.vector[1] * self.MAX_SPEED])
             force = self.calculateForce(v, self.STEER_FORCE)
             self.applyForce(force)
     #end awayFromBorders
@@ -82,8 +81,7 @@ class Bird:
         if closeBirds > 0:
             avg = np.divide(sumVector, closeBirds)
             avg = speedLimit(avg, self.MAX_SPEED)
-            self.followVector = np.subtract(avg, self.vector)
-            self.followVector = speedLimit(self.followVector, self.W_FOLLOW)
+            self.followVector = self.calculateForce(avg, self.W_FOLLOW)
             self.applyForce(self.followVector)
     #end follow
 

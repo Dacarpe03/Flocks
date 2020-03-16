@@ -4,7 +4,7 @@ import random
 
 class Flock:
 
-    SPEED = 4
+    SPEED = 3
 
     CREATION_LIMIT = 100
 

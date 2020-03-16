@@ -4,7 +4,9 @@ import random
 
 class Flock:
 
-    SPEED = 5
+    SPEED = 4
+
+    CREATION_LIMIT = 100
 
     def __init__(self, numberOfBirds, maxX, maxY):
         self.birds = []
@@ -14,9 +16,9 @@ class Flock:
         self.maxY = maxY
 
         for i in range(0, self.numberOfBirds):
-            position = [random.randint(0, maxX-1), random.randint(0, maxY-1)]
+            position = [random.randint(self.CREATION_LIMIT, self.maxX-self.CREATION_LIMIT), random.randint(self.CREATION_LIMIT, maxY-self.CREATION_LIMIT)]
             vector = [random.uniform(-self.SPEED, self.SPEED), random.uniform(-self.SPEED, self.SPEED)]
-            bird = Bird(i, position, [maxX/2, maxY/2], vector)
+            bird = Bird(i, position, [maxX/2, maxY/2], vector, maxX, maxY)
             self.birds.append(bird)
 
     def move(self):
@@ -25,4 +27,4 @@ class Flock:
 
     def redirect(self, x, y):
         for bird in self.birds:
-            bird.setDesiredPositon(x, y)
+            bird.setDesiredPosition(x, y)

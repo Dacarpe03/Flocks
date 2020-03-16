@@ -1,74 +1,135 @@
 import numpy as np
-import random
+
+
+def speedLimit(v, limit):
+    norm = np.linalg.norm(v)
+    if norm > limit:
+        v = limit * np.divide(v, norm)
+    return v
+
 
 class Bird:
+    BORDER_EDGES = 25 #Border of edges in which we are in danger
 
-    MAX_SPEED = 3
-    MAX_FORCE = 0.1
-    RADIUS = 35
+    MAX_SPEED = 4   #Max magnitude of a vector
 
-    def __init__(self, id, currentPosition, desiredPosition, vector):
-        self.id = id
+    W_FOLLOW = 0.1  #Weight of follow
+    W_AVOID = 1   #Weight of avoid
+    W_DESIRED = 0.2 #Weigth of going to desired position
+
+    STEER_FORCE = 0.1   #Steering force when close to an edge
+    RADIUS_FOLLOW = 50  #Perception radius
+    RADIUS_AVOID = 20   #Avoid radius
+
+    def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
+        self.identifier = identifier
+
+        self.edgeX = edgeX
+        self.edgeY = edgeY
+
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
-        self.steer = np.array([0, 0]).astype(float)
+
         self.vector = np.array(vector).astype(float)
         self.acceleration = np.array([0, 0]).astype(float)
+    #end __init__
 
     def move(self, otherBirds):
         self.resetAcceleration()
-        self.align(otherBirds)
-        self.updateSteer()
+        #See which birds are close to us
+        neighbours = self.getNeighbourBirds(otherBirds, self.RADIUS_FOLLOW)
+        #First calculate follow vector
+        self.goToDesiredPositon()
+        self.follow(neighbours)
+        self.avoid(neighbours)
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
+    #end move
 
     def updateVect(self):
+        # We don't want to touch the edges so we add a force to go away from it
+        self.awayFromBorders()
+        self.acceleration = speedLimit(self.acceleration, self.MAX_SPEED)
         self.vector = np.add(self.vector, self.acceleration)
-        self.vector = self.speedLimit(self.vector, self.MAX_SPEED)
-
-    def updateSteer(self):
-        desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
-        desiredVector = self.speedLimit(desiredVector, self.MAX_SPEED)
-
-        self.steer = np.subtract(desiredVector, self.vector)
-        self.steer = self.speedLimit(self.steer, self.MAX_FORCE)
-
-        self.applyForce(self.steer)
+        self.vector = speedLimit(self.vector, self.MAX_SPEED)
+    #end updateVect
 
     def resetAcceleration(self):
         self.acceleration = np.zeros(2)
+    #end resetAcceleration
 
     def applyForce(self, v):
         self.acceleration = np.add(self.acceleration, v)
+    #end applyForce
 
-    def align(self, otherBirds):
+    def awayFromBorders(self):
+        if self.BORDER_EDGES > self.currentPosition[0] or self.currentPosition[0] > self.edgeX-self.BORDER_EDGES:
+            v = np.array([-self.vector[0] * self.MAX_SPEED, self.vector[1]])
+            force = self.calculateForce(v, self.STEER_FORCE)
+            self.applyForce(force)
+        elif self.BORDER_EDGES > self.currentPosition[1] or self.currentPosition[1] > self.edgeY-self.BORDER_EDGES:
+            v = np.array([self.vector[0], -self.vector[1] * self.MAX_SPEED])
+            force = self.calculateForce(v, self.STEER_FORCE)
+            self.applyForce(force)
+    #end awayFromBorders
+
+    def calculateForce(self, v, magnitude):
+        return np.subtract(v, self.vector)
+    #end calculateForce
+
+    def goToDesiredPositon(self):
+        desiredVector = np.subtract(self.desiredPosition, self.currentPosition)
+        desiredVector = speedLimit(desiredVector, self.MAX_SPEED)
+        force = self.calculateForce(desiredVector, self.W_DESIRED)
+        self.applyForce(force)
+    #end goToDesiredPosition
+
+    def follow(self, neighbours):
         sumVector = np.array([0, 0]).astype(float)
-        closeBirds = 0
-        for bird in otherBirds:
-            d = self.dist(bird)
-            if self.RADIUS >= d > 0 and self.id != bird.id:
-                closeBirds += 1
-                sumVector = np.add(sumVector, bird.getVector())
+        closeBirds = len(neighbours)
+        for bird in neighbours:
+            sumVector = np.add(sumVector, bird.getVector())
 
         if closeBirds > 0:
             avg = np.divide(sumVector, closeBirds)
-            avg = self.speedLimit(avg, self.MAX_SPEED)
-            self.steer = np.subtract(avg, self.vector)
-            self.steer = self.speedLimit(self.steer, self.MAX_FORCE)
-            self.applyForce(self.steer)
+            avg = speedLimit(avg, self.MAX_SPEED/2)
+            followVector = self.calculateForce(avg, self.W_FOLLOW)
+            self.applyForce(followVector)
+    #end follow
 
-    def speedLimit(self, v, limit):
-        norm = np.linalg.norm(v)
-        if norm > limit:
-            v = limit * np.divide(v, norm)
-        return v
+    def avoid(self, neighbours):
+        toAvoid = self.getNeighbourBirds(neighbours, self.RADIUS_AVOID)
+        sumVector = np.array([0, 0]).astype(float)
+        closeBirds = len(toAvoid)
+        for bird in toAvoid:
+            separate = np.subtract(self.currentPosition, bird.currentPosition)
+            sumVector = np.add(sumVector, separate)
 
-    def setDesiredPositon(self, x, y):
+        if closeBirds > 0:
+            avg = np.divide(sumVector, closeBirds)
+            avg = speedLimit(avg, self.MAX_SPEED)
+            avoidVector = self.calculateForce(avg, self.W_AVOID)
+            self.applyForce(avoidVector)
+    #end avoid
+
+    def setDesiredPosition(self, x, y):
         self.desiredPosition = np.array([x, y]).astype(float)
+    #end setDesiredPosition
 
     def getVector(self):
         return self.vector
+    #end getVector
 
     def dist(self, other):
         vect = np.subtract(other.currentPosition, self.currentPosition)
         return np.linalg.norm(vect)
+    #end dist
+
+    def getNeighbourBirds(self, otherBirds, radius):
+        neighbours = []
+        for bird in otherBirds:
+            d = self.dist(bird)
+            if radius >= d > 0 and self.identifier != bird.identifier:
+                neighbours.append(bird)
+        return neighbours
+    #end getNeighbourBirds

@@ -9,9 +9,9 @@ def speedLimit(v, limit):
 
 
 class Bird:
-    MAX_SPEED = 4
+    MAX_SPEED = 4   #Max magnitude of a vector
     W_FOLLOW = 0.3  # Weight of follow
-    RADIUS = 35
+    RADIUS = 35     # Perception radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector):
         self.identifier = identifier
@@ -82,3 +82,12 @@ class Bird:
         vect = np.subtract(other.currentPosition, self.currentPosition)
         return np.linalg.norm(vect)
     #end dist
+
+    def getNeighbourBirds(self, otherBirds):
+        neighbours = []
+        for bird in otherBirds:
+            d = self.dist(bird)
+            if self.RADIUS >= d > 0 and self.identifier != bird.id:
+                neighbours.append(bird)
+        return neighbours
+    #end getNeighbourBirds

@@ -11,8 +11,9 @@ def speedLimit(v, limit):
 class Bird:
     BORDER_EDGES = 25 #Border of edges in which we are in danger
 
-    MAX_SPEED = 4   #Max magnitude of a vector
-    W_FOLLOW = 0.5  # Weight of follow
+    MAX_SPEED = 2   #Max magnitude of a vector
+    W_FOLLOW = 0.2 # Weight of follow
+    W_AVOID = 0.1   # Weight of avoid
 
     STEER_FORCE = 0.2 #Steering force when close to an edge
     RADIUS = 50     # Perception radius
@@ -26,7 +27,6 @@ class Bird:
         self.currentPosition = np.array(currentPosition).astype(float)
         self.desiredPosition = np.array(desiredPosition).astype(float)
 
-        self.followVector = np.array([0, 0]).astype(float)
         self.vector = np.array(vector).astype(float)
         self.acceleration = np.array([0, 0]).astype(float)
     #end __init__
@@ -37,6 +37,7 @@ class Bird:
         neighbours = self.getNeighbourBirds(otherBirds)
         #First calculate follow vector
         self.follow(neighbours)
+        self.avoid(neighbours)
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
     #end move
@@ -80,13 +81,23 @@ class Bird:
 
         if closeBirds > 0:
             avg = np.divide(sumVector, closeBirds)
-            avg = speedLimit(avg, self.MAX_SPEED)
-            self.followVector = self.calculateForce(avg, self.W_FOLLOW)
-            self.applyForce(self.followVector)
+            avg = speedLimit(avg, self.MAX_SPEED/2)
+            followVector = self.calculateForce(avg, self.W_FOLLOW)
+            self.applyForce(followVector)
     #end follow
 
-    #def avoid(self, neighbours):
-     #   for bird in neighbours:
+    def avoid(self, neighbours):
+        sumVector = np.array([0, 0]).astype(float)
+        closeBirds = len(neighbours)
+        for bird in neighbours:
+            separate = np.subtract(self.currentPosition, bird.currentPosition)
+            sumVector = np.add(sumVector, separate)
+
+        if closeBirds > 0:
+            avg = np.divide(sumVector, closeBirds)
+            avg = speedLimit(avg, self.MAX_SPEED)
+            avoidVector = self.calculateForce(avg, self.W_AVOID)
+            self.applyForce(avoidVector)
     #end avoid
 
     def setDesiredPosition(self, x, y):

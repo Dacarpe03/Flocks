@@ -25,4 +25,4 @@ class Flock:
 
     def redirect(self, x, y):
         for bird in self.birds:
-            bird.setDesiredPositon(x, y)
+            bird.setDesiredPosition(x, y)

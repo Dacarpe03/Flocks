@@ -11,12 +11,13 @@ def speedLimit(v, limit):
 class Bird:
     BORDER_EDGES = 25 #Border of edges in which we are in danger
 
-    MAX_SPEED = 2   #Max magnitude of a vector
-    W_FOLLOW = 0.2 # Weight of follow
-    W_AVOID = 0.1   # Weight of avoid
+    MAX_SPEED = 4   #Max magnitude of a vector
+    W_FOLLOW = 0.2  #Weight of follow
+    W_AVOID = 0.1   #Weight of avoid
 
-    STEER_FORCE = 0.2 #Steering force when close to an edge
-    RADIUS = 50     # Perception radius
+    STEER_FORCE = 0.2   #Steering force when close to an edge
+    RADIUS_FOLLOW = 50  #Perception radius
+    RADIUS_AVOID = 15   #Avoid radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
         self.identifier = identifier
@@ -34,7 +35,7 @@ class Bird:
     def move(self, otherBirds):
         self.resetAcceleration()
         #See which birds are close to us
-        neighbours = self.getNeighbourBirds(otherBirds)
+        neighbours = self.getNeighbourBirds(otherBirds, self.RADIUS_FOLLOW)
         #First calculate follow vector
         self.follow(neighbours)
         self.avoid(neighbours)
@@ -87,9 +88,10 @@ class Bird:
     #end follow
 
     def avoid(self, neighbours):
+        toAvoid = self.getNeighbourBirds(neighbours, self.RADIUS_AVOID)
         sumVector = np.array([0, 0]).astype(float)
-        closeBirds = len(neighbours)
-        for bird in neighbours:
+        closeBirds = len(toAvoid)
+        for bird in toAvoid:
             separate = np.subtract(self.currentPosition, bird.currentPosition)
             sumVector = np.add(sumVector, separate)
 
@@ -113,11 +115,11 @@ class Bird:
         return np.linalg.norm(vect)
     #end dist
 
-    def getNeighbourBirds(self, otherBirds):
+    def getNeighbourBirds(self, otherBirds, radius):
         neighbours = []
         for bird in otherBirds:
             d = self.dist(bird)
-            if self.RADIUS >= d > 0 and self.identifier != bird.identifier:
+            if radius >= d > 0 and self.identifier != bird.identifier:
                 neighbours.append(bird)
         return neighbours
     #end getNeighbourBirds

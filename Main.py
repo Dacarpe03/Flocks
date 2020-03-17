@@ -1,10 +1,10 @@
 import arcade
 from Model.Flock import Flock
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 720
+SCREEN_WIDTH = 720
+SCREEN_HEIGHT = 480
 
-N_BIRDS = 70
+N_BIRDS = 45
 BIRD_SIZE = 5
 
 class MyGame(arcade.Window):

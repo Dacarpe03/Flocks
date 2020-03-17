@@ -19,13 +19,14 @@ class Bird:
 
     MAX_SPEED = 4  # Max magnitude of a vector
 
-    W_FOLLOW = 0.6  # Weight of follow
-    W_AVOID = 0.3  # Weight of avoid
-    W_DESIRED = 0.2  # Weigth of going to desired position
+    W_FOLLOW = 0.1  # Weight of follow
+    W_AVOID = 1  # Weight of avoid
+    W_DESIRED = 0.8  # Weight of going to desired position
+    W_CENTER = 0.3  # Weight of going to center of close birds
 
     STEER_FORCE = 11  # Steering force when close to an edge
-    RADIUS_FOLLOW = 60  # Perception radius
-    RADIUS_AVOID = 20  # Avoid radius
+    RADIUS_FOLLOW = 40  # Perception radius
+    RADIUS_AVOID = 10  # Avoid radius
 
     def __init__(self, identifier, currentPosition, desiredPosition, vector, edgeX, edgeY):
         self.identifier = identifier
@@ -46,9 +47,10 @@ class Bird:
         # See which birds are close to us
         neighbours = self.getNeighbourBirds(otherBirds, self.RADIUS_FOLLOW)
         # First calculate follow vector
-        #self.goToDesiredPositon()
-        self.follow(neighbours)
+        self.goToDesiredPositon()
         self.avoid(neighbours)
+        self.center(neighbours)
+        self.follow(neighbours)
         self.updateVect()
         self.currentPosition = np.add(self.currentPosition, self.vector)
 
@@ -128,6 +130,22 @@ class Bird:
                 self.applyForce(avoidVector)
 
     # end avoid
+
+    def center(self, neighbours):
+        sumVector = np.array([0, 0]).astype(float)
+        closeBirds = len(neighbours)
+        for bird in neighbours:
+            if self.identifier != bird.identifier:
+                sumVector = np.add(sumVector, bird.currentPosition)
+
+        if closeBirds > 0:
+            avg = np.divide(sumVector, closeBirds)
+            avg = speedLimit(avg, self.MAX_SPEED)
+            if notZero(avg):
+                centerVector = self.calculateForce(avg, self.W_CENTER)
+                self.applyForce(centerVector)
+
+    #end center
 
     def setDesiredPosition(self, x, y):
         self.desiredPosition = np.array([x, y]).astype(float)
